@@ -54,8 +54,16 @@ module MetaContent
       @record.class
     end
 
+    def connection
+      if klass.respond_to? :meta_content_connection
+        klass.meta_content_connection
+      else
+        klass.connection
+      end
+    end
+    
     def execute(sql)
-      klass.connection.execute(sql)
+      connection.execute(sql)
     end
 
   end
