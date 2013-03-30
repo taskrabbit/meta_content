@@ -87,7 +87,14 @@ module MetaContent
         end
         str_value = float_value.to_s
       when :datetime, :time
-        value = value.to_i if value.respond_to?(:to_i) && value.to_i > 0
+        if value.is_a? String
+          if value.to_i > 0 # string with epoch time
+            value = value.to_i
+          elsif Time.respond_to? :parse
+            # string with formatted datetime
+            value = Time.parse(value) rescue nil  # don't care if it blows up, nbd
+          end
+        end
         value = Time.at(value) if value.is_a? Integer
         
         if value.respond_to? :strftime
@@ -97,6 +104,14 @@ module MetaContent
           str_value = nil
         end
       when :date
+        if value.is_a? String
+          if value.to_i > 0 # string with epoch time
+            value = value.to_i
+          elsif Date.respond_to? :parse
+            # string with formatted datetime
+            value = Date.parse(value) rescue nil  # don't care if it blows up, nbd
+          end
+        end
         value = Time.at(value).to_date if value.is_a? Integer
         
         if value.respond_to? :strftime
