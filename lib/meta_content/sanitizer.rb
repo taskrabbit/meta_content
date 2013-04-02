@@ -87,8 +87,7 @@ module MetaContent
         end
         str_value = float_value.to_s
       when :datetime, :time
-        value = value.to_i if value.respond_to?(:to_i) && value.to_i > 0
-        value = Time.at(value) if value.is_a? Integer
+        value = parse_time(value)
         
         if value.respond_to? :strftime
           str_value = value.strftime("%Y-%m-%dT%H:%M:%S%:z")
@@ -97,7 +96,7 @@ module MetaContent
           str_value = nil
         end
       when :date
-        value = Time.at(value).to_date if value.is_a? Integer
+        value = parse_time(value)
         
         if value.respond_to? :strftime
           str_value = value.strftime("%Y-%m-%d")
@@ -128,6 +127,16 @@ module MetaContent
       float_value ||= int_value.to_f
       
       Change.new(str_value, int_value, float_value)
+    end
+
+    def parse_time(value)
+      result = nil
+      if value.is_a? String
+        result = Time.parse(value) rescue nil  # don't care if it blows up, nbd
+        value = value.to_i if value.to_i > 0 && result.nil?
+      end
+      result ||= Time.at(value) if value.is_a? Integer
+      result || value
     end
 
     def klass
