@@ -47,7 +47,7 @@ module MetaContent
       return nil if value.nil?
       
       case type
-      when :integer, :fixnum
+      when :integer, :fixnum, :int
         value.to_i
       when :float, :number
         value.to_f
@@ -68,7 +68,7 @@ module MetaContent
       int_value = nil
       float_value = nil
       case type
-      when :integer, :fixnum
+      when :integer, :fixnum, :int
         begin
           if value.respond_to? :strftime
             int_value = value.strftime("%s").to_i
