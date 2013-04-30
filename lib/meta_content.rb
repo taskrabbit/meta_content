@@ -89,12 +89,20 @@ module MetaContent
   end
   
   def field_meta(namespace, field)
-    options = self.class.meta_content_fields.fetch(namespace, {})
+    options = namespace_meta(namespace)
     options.fetch(field, {})
+  end
+  
+  def namespace_meta(namespace)
+    self.class.meta_content_fields.fetch(namespace, {})
+  end
+  
+  def read_namespace(namespace)
+    self.meta.fetch(namespace, {})
   end
 
   def read_meta(namespace, field)
-    namespaced_meta = self.meta.fetch(namespace, {})
+    namespaced_meta = read_namespace(namespace)
     namespaced_meta.fetch(field, default_meta(namespace, field))
   end
 
