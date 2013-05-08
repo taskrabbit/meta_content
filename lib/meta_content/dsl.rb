@@ -45,15 +45,17 @@ module MetaContent
         def #{method_name}=(val)
           write_meta(:#{implied_namespace}, :#{field}, val)
         end
-        
+
         def #{method_name}?
           ![nil, 0, false, ""].include?(#{method_name})
         end
 
         def #{method_name}_changed?
           changes = meta_changes
-          changes[0].keys.include?(:#{method_name}) ||
-          changes[1].keys.include?(:#{method_name})
+          !!(
+            changes[0]["#{implied_namespace}"].try(:keys).try(:include?, "#{field}") ||
+            changes[1]["#{implied_namespace}"].try(:include?, "#{field}")
+          )
         end
       EV
     end
