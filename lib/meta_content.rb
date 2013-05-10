@@ -74,7 +74,7 @@ module MetaContent
       namespaced_is.each do |k,v|
         if v == nil
           deletes[namespace] << k
-        elsif was[k] != v
+        elsif namespaced_was[k] != v
           updates[namespace][k] = v
         end
       end
@@ -107,14 +107,28 @@ module MetaContent
   end
 
   def write_meta(namespace, field, value)
-    self.meta[namespace] ||= {}
+    # we want to leverage changes, but nested hashes are a problem because it's not a deep clone
+    cached_original = nil
+    setting_original = !changed_attributes.include?(:meta)
+    
+    if !self.meta[namespace]
+      # save it before we mess with it
+      cached_original ||= self.meta.deep_dup if setting_original
+      self.meta[namespace] = {}
+    end
     unless self.meta[namespace][field] == value
       attribute_name = namespace.to_s == 'class' ? field : [namespace, field].join('_')
       attribute_will_change!(attribute_name)
-      attribute_will_change!(:meta)
+      
+      cached_original ||= self.meta.deep_dup if setting_original
 
       type = field_meta(namespace, field)[:type]
-      self.meta[namespace][field] = meta_sanitizer.sanitize(value, type || :string)
+      val = self.meta[namespace][field] = meta_sanitizer.sanitize(value, type || :string)
+      
+      # same as attribute_will_change but with a deep dup include of a shallow clone
+      changed_attributes[:meta] = cached_original if setting_original
+      
+      val
     end
   end
 
