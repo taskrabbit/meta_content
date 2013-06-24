@@ -36,7 +36,6 @@ module MetaContent
       @klass.meta_content_fields[implied_namespace][field] = options.except(:namespace)
 
       method_name = [given_namespace, field].compact.join('_')
-
       @klass.class_eval <<-EV, __FILE__, __LINE__+1
         def #{method_name}
           read_meta(:#{implied_namespace}, :#{field})
