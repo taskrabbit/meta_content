@@ -80,7 +80,7 @@ module MetaContent
       end
     end
 
-    [updates, deletes]
+    [HashWithIndifferentAccess.new(updates), HashWithIndifferentAccess.new(deletes)]
   end
 
   def default_meta(namespace, field)
